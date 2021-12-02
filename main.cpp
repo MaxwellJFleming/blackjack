@@ -1,12 +1,13 @@
 #include "logic.hpp"
 
+int randGen(int i) { return std::rand() % i; }
+
 struct Card
 {
     int value;
     
     Card(int i)
     {
-        std::cout << i << std::endl;    //debug. remove before turning in
         value = i;
     }
 };
@@ -34,15 +35,16 @@ struct Deck
         }
     }
     
-    std::vector<Card> Shuffle()
+    void Shuffle()
     {
-        return std::move(cardStack);   //TODO
+        auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::shuffle(cardStack.begin(), cardStack.end(), std::default_random_engine(seed));
     }
 
     Card Deal()
     {
         Card ret = cardStack.back();
-        cardStack.pop_back();
+        cardStack.erase(cardStack.end()-1);
         return std::move(ret);
     }
 };
@@ -64,37 +66,72 @@ public:
         {
             total += it->value;
         }
-        std::cout << total << std::endl;
         return total;
     }
 };
 
-// GameState Game(Deck d, Player player, Player dealer)
-// {
-//     return WIN; //TODO
-// }
-
-int main()
-{
+GameState Game()
+{   
     Deck d = Deck();
+    d.Shuffle();
     Player player = Player();
     Player dealer = Player();
     
     player.hand.push_back(d.Deal());
     player.hand.push_back(d.Deal());
+    std::cout << "Player hand: " << player.CheckHand() << std::endl;
 
-    player.CheckHand()
+    dealer.hand.push_back(d.Deal());
+    dealer.hand.push_back(d.Deal());
+    std::cout << "Dealer hand: " << dealer.CheckHand() << std::endl;
 
-    // player.Hit(std::move(d));
-    // player.Hit(std::move(d));
+    while (player.CheckHand() < 17)
+    {
+        player.hand.push_back(d.Deal());
+        std::cout << "Player hand: " << player.CheckHand() << std::endl;
+        if (player.CheckHand() == 21)
+        {
+            return WIN;
+        }
+        else if (player.CheckHand() > 21)
+        {
+            return LOSE;
+        }
+    }
+    while (dealer.CheckHand() < 17)
+    {
+        dealer.hand.push_back(d.Deal());
+        std::cout << "Dealer hand: " << dealer.CheckHand() << std::endl;
+        if (dealer.CheckHand() == 21)
+        {
+            return LOSE;
+        }
+        else if (dealer.CheckHand() > 21)
+        {
+            return WIN;
+        }
+    }
 
-    // dealer.Hit(std::move(d));
-    // dealer.Hit(std::move(d));
+    if (player.CheckHand() == 21)
+    {
+        return WIN;
+    }
+    else if (dealer.CheckHand() == 21)
+    {
+        return LOSE;
+    }
+    else if (player.CheckHand() > dealer.CheckHand())
+    {
+        return WIN;
+    }
 
-    // player.CheckHand();
+    return LOSE;
+}
 
-    // for (int i = 0; i < 100; i++)
-    // {
-    //     std::cout << Game(d, player, dealer) << std::endl;
-    // }
+int main()
+{
+    for (int i = 0; i < 100; i++)
+    {
+        std::cout << Game() << std::endl;
+    }
 }

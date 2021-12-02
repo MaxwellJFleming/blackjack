@@ -2,6 +2,9 @@
 #include <stack>
 #include <vector>
 #include <iostream>
+#include <algorithm>
+#include <random>
+#include <chrono>
 
 enum GameState { PLAYING, WIN, LOSE };
 
