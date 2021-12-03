@@ -1,12 +1,11 @@
 #pragma once
-#include <stack>
 #include <vector>
 #include <iostream>
 #include <algorithm>
 #include <random>
 #include <chrono>
 
-enum GameState { PLAYING, WIN, LOSE };
+enum GameState { WIN, LOSE };
 
 struct Card;
 
@@ -14,4 +13,4 @@ struct Deck;
 
 class Player;
 
-// GameState Game(Deck d, Player player, Player dealer);
+GameState Game();
