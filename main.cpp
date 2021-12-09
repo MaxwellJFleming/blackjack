@@ -1,40 +1,52 @@
 #include "logic.hpp"
 
-int randGen(int i) { return std::rand() % i; }
-
 struct Card
 {
+public:
     int value;
-    
-    Card(int i)
+
+    Suit suit;
+
+    Face face;
+
+    Card(int i, Suit s)
     {
         value = i;
+        suit = s;
+    }
+
+    Card(int i, Suit s, Face f)
+    {
+        value = i;
+        suit = s;
+        face = f;
     }
 };
 
 struct Deck
 {
+public:
     std::vector<Card> cardStack = std::vector<Card>();
     
     Deck()
     {
-        int valCount = 0;
-        int val = 1;
-        while (cardStack.size() < 52)
+        for (int suitCount = 0; suitCount < 4; suitCount++)
         {
-            cardStack.push_back(std::move(Card(val)));
-            valCount++;
-            if (valCount == 4)
+            int val = 1;
+            int face = 0;
+            for (int cardsInSuit = 0; cardsInSuit < 13; cardsInSuit++)
             {
+                cardStack.push_back(std::move(Card(val, (Suit)suitCount, (Face)face)));
                 if (val != 10)
-                {
                     val++;
-                    valCount = 0;
+                else
+                {
+                    face++;
                 }
             }
         }
     }
-    
+
     void Shuffle()
     {
         auto seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -44,7 +56,7 @@ struct Deck
     Card Deal()
     {
         Card ret = cardStack.back();
-        cardStack.erase(cardStack.end()-1);
+        cardStack.erase(cardStack.end());
         return std::move(ret);
     }
 };
@@ -70,6 +82,14 @@ public:
     }
 };
 
+// checks for an ace-10 blackjack
+bool OpeningBlackjack(Player p)
+{
+    if (p.CheckHand() == 11 && (p.hand[0].value == 1 || p.hand[1].value == 1))
+        return true;
+    return false;
+}
+
 GameState Game()
 {   
     Deck d = Deck();
@@ -79,37 +99,32 @@ GameState Game()
     
     player.hand.push_back(d.Deal());
     player.hand.push_back(d.Deal());
-    std::cout << "Player hand: " << player.CheckHand() << std::endl;
 
+    if (OpeningBlackjack(std::move(player)))
+        return WIN;
+        
     dealer.hand.push_back(d.Deal());
     dealer.hand.push_back(d.Deal());
-    std::cout << "Dealer hand: " << dealer.CheckHand() << std::endl;
+
+    if (OpeningBlackjack(std::move(dealer)))
+        return LOSE;
 
     while (player.CheckHand() < 17)
     {
         player.hand.push_back(d.Deal());
-        std::cout << "Player hand: " << player.CheckHand() << std::endl;
         if (player.CheckHand() == 21)
-        {
             return WIN;
-        }
         else if (player.CheckHand() > 21)
-        {
             return LOSE;
-        }
     }
     while (dealer.CheckHand() < 17)
     {
         dealer.hand.push_back(d.Deal());
-        std::cout << "Dealer hand: " << dealer.CheckHand() << std::endl;
         if (dealer.CheckHand() == 21)
-        {
+
             return LOSE;
-        }
         else if (dealer.CheckHand() > 21)
-        {
             return WIN;
-        }
     }
 
     if (player.CheckHand() == 21)
@@ -128,10 +143,18 @@ GameState Game()
     return LOSE;
 }
 
+std::string Result(GameState g)
+{
+    if(g)
+        return std::move("House wins");
+    return std::move("Player wins!");
+}
+
 int main()
 {
     for (int i = 0; i < 100; i++)
     {
-        std::cout << Game() << std::endl;
+        
+        std::cout << Result(Game()) << std::endl;
     }
 }
