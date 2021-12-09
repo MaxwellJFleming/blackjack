@@ -83,9 +83,9 @@ public:
 };
 
 // checks for an ace-10 blackjack
-bool OpeningBlackjack(Player p)
+bool OpeningBlackjack(Player *p)
 {
-    if (p.CheckHand() == 11 && (p.hand[0].value == 1 || p.hand[1].value == 1))
+    if (p->CheckHand() == 11 && (p->hand[0].value == 1 || p->hand[1].value == 1))
         return true;
     return false;
 }
@@ -94,48 +94,52 @@ GameState Game()
 {   
     Deck d = Deck();
     d.Shuffle();
-    Player player = Player();
-    Player dealer = Player();
+    Player *player = new Player();
+    Player *dealer = new Player();
     
-    player.hand.push_back(d.Deal());
-    player.hand.push_back(d.Deal());
+    player->hand.push_back(d.Deal());
+    player->hand.push_back(d.Deal());
 
-    if (OpeningBlackjack(std::move(player)))
+    std::cout << "Player hand: " << player->CheckHand() << std::endl;
+
+    if (OpeningBlackjack(player))
         return WIN;
-        
-    dealer.hand.push_back(d.Deal());
-    dealer.hand.push_back(d.Deal());
+    
+    std::cout << "Player hand: " << player->CheckHand() << std::endl;
 
-    if (OpeningBlackjack(std::move(dealer)))
+    dealer->hand.push_back(d.Deal());
+    dealer->hand.push_back(d.Deal());
+
+    if (OpeningBlackjack(dealer))
         return LOSE;
 
-    while (player.CheckHand() < 17)
+    while (player->CheckHand() < 17)
     {
-        player.hand.push_back(d.Deal());
-        if (player.CheckHand() == 21)
+        player->hand.push_back(d.Deal());
+        if (player->CheckHand() == 21)
             return WIN;
-        else if (player.CheckHand() > 21)
+        else if (player->CheckHand() > 21)
             return LOSE;
     }
-    while (dealer.CheckHand() < 17)
+    while (dealer->CheckHand() < 17)
     {
-        dealer.hand.push_back(d.Deal());
-        if (dealer.CheckHand() == 21)
+        dealer->hand.push_back(d.Deal());
+        if (dealer->CheckHand() == 21)
 
             return LOSE;
-        else if (dealer.CheckHand() > 21)
+        else if (dealer->CheckHand() > 21)
             return WIN;
     }
 
-    if (player.CheckHand() == 21)
+    if (player->CheckHand() == 21)
     {
         return WIN;
     }
-    else if (dealer.CheckHand() == 21)
+    else if (dealer->CheckHand() == 21)
     {
         return LOSE;
     }
-    else if (player.CheckHand() > dealer.CheckHand())
+    else if (player->CheckHand() > dealer->CheckHand())
     {
         return WIN;
     }

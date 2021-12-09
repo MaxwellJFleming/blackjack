@@ -17,10 +17,8 @@ struct Deck;
 
 class Player;
 
-bool OpeningBlackjack(Player p);
+bool OpeningBlackjack(Player *p);
 
 GameState Game();
 
 std::string Result(GameState g);
-
-int main();
