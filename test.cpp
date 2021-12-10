@@ -102,12 +102,8 @@ GameState Game()
     player->hand.push_back(d.Deal());
     player->hand.push_back(d.Deal());
 
-    std::cout << "Player hand: " << player->CheckHand() << std::endl;
-
     if (OpeningBlackjack(player))
         return WIN;
-    
-    std::cout << "Player hand: " << player->CheckHand() << std::endl;
 
     dealer->hand.push_back(d.Deal());
     dealer->hand.push_back(d.Deal());
